@@ -52,58 +52,6 @@ ui_print "  | || |  | | || (_) | | | |"
 ui_print "  |_||_|  |_|\__\___/|_| |_|"
 ui_print "         Storm              "
 ui_print "* Thago @ xda-developers ***"
-
-patch_cmdline androidboot.usbconfigfs androidboot.usbconfigfs=true
-
-mount -o remount,rw /vendor
-
-ui_print " "
-ui_print "Flashing Custom Thermal-engine conf"
-ui_print " "
-
-# Thermal conf
-cp -f $home/patch/vendor/etc/thermal-engine.conf /vendor/etc/thermal-engine-t.conf
-
-ui_print "Flashing T-Weaks"
-ui_print "Which brings you yet more Optimizations"
-
-# T-Weaks Post boot script
-do_t_weaks() {
-	sed -i '$a chk=$(uname -r | grep -Eio Triton)' /vendor/bin/init.qcom.post_boot.sh;
-	sed -i '$a if [ "$chk" == "Triton" ]; then' /vendor/bin/init.qcom.post_boot.sh;
-	sed -i '$a \    \ setprop ro.lmk.use_psi true' /vendor/bin/init.qcom.post_boot.sh;
-	sed -i '$a \    \ setprop ro.config.low_ram true' /vendor/bin/init.qcom.post_boot.sh;
-	sed -i '$a \    \ setprop ro.lmk.psi_complete_stall_ms 200' /vendor/bin/init.qcom.post_boot.sh;
-	sed -i '$a \    \ setprop ro.lmk.thrashing_limit 30' /vendor/bin/init.qcom.post_boot.sh;
-	sed -i '$a \    \ setprop ro.lmk.swap_util_max 100' /vendor/bin/init.qcom.post_boot.sh;
-	sed -i '$a \	\ if [ -f /vendor/etc/thermal-engine-t.conf ]; then' /vendor/bin/init.qcom.post_boot.sh;
-	sed -i '$a \ 		\mv /vendor/etc/thermal-engine.conf /vendor/etc/thermal-engine.conf~' /vendor/bin/init.qcom.post_boot.sh;
-	sed -i '$a \		\mv /vendor/etc/thermal-engine-t.conf  /vendor/etc/thermal-engine.conf' /vendor/bin/init.qcom.post_boot.sh;
-	sed -i '$a \	\ fi' /vendor/bin/init.qcom.post_boot.sh;
-	sed -i '$a \         \source /vendor/bin/t-weaks.sh' /vendor/bin/init.qcom.post_boot.sh;
-	sed -i '$a else' /vendor/bin/init.qcom.post_boot.sh;
-	sed -i '$a \	\if [ -f /vendor/etc/thermal-engine.conf~ ]; then' /vendor/bin/init.qcom.post_boot.sh;
-	sed -i '$a \ 		\mv /vendor/etc/thermal-engine.conf~ /vendor/etc/thermal-engine.conf' /vendor/bin/init.qcom.post_boot.sh;
-	sed -i '$a \	\fi' /vendor/bin/init.qcom.post_boot.sh;
-	sed -i '$a fi' /vendor/bin/init.qcom.post_boot.sh;
-}
-
-cp -f $home/patch/vendor/bin/init.qcom.post_boot.sh /vendor/bin/t-weaks.sh;
-chmod 0755 /vendor/bin/t-weaks.sh;
-
-cie=$(grep -Eio -m 1 Triton /vendor/bin/init.qcom.post_boot.sh);
-if [ $cie = Triton ]; then
-        ui_print "T-Weaks already exits"
-else
-        ui_print "T-Weaks not found, Performing T-Weaks"
-        do_t_weaks;
-	sleep 2;
-	ui_print "Done!"
-fi
-
-ui_print " "
-ui_print "Done! Don't forget to follow @tboxxx for  more updates"
-ui_print "*** Enjoy! *****"
 ui_print "*******************"
 
 write_boot;
